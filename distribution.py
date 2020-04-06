@@ -110,15 +110,22 @@ class like_binary() :#Likelihood of binomial distribution module
     def llr(self,success_p): #log-likelihood ratio
         return self.ll(success_p)-self.ll(self.ext)
 
-    def interval(self,y): # To do some probability integral~
-        aa,cc= quad(lambda a:self.l(a), 0.001, 1.0)
-        c,d= quad(lambda a:self.l(a), self.ext - y, self.ext + y)
-        return c/aa -0.95
+    def interval_upper(self,y): # probability integral to find upper limit~
+        aa,cc= quad(lambda a:self.l(a), 0.001, 0.999)
+        c,d= quad(lambda a:self.l(a), y, 0.999)
+        return c/aa -0.025
+
+    def interval_lower(self,y): # probability integral to find lower limit~
+        aa,cc= quad(lambda a:self.l(a), 0.001, 0.999)
+        c,d= quad(lambda a:self.l(a), 0.001, y)
+        return c/aa -0.025
+
     def confi95(self): #Calculate the confidence 95%
-        bb= solve_eqn(self.interval,0.001,0.5)
-        print  "the 95% interval is ",self.ext-bb,"~",self.ext+bb
-        print  "the 95% interval is ",self.llr(self.ext-bb),"~",self.llr(self.ext+bb)
-        return bb
+        lower= solve_eqn(self.interval_lower,0.0001,self.ext)
+	upper= solve_eqn(self.interval_upper,self.ext,0.999)
+        print  "the 95% interval is ",lower,"~",upper
+        print  "the 95% interval is ",self.llr(lower),"~",self.llr(upper)
+	
 
 #********************************
 #********************************
@@ -176,16 +183,21 @@ class like_poisson() :
 		b=self.ll(self.ext)
 		return a-b
 
-	def interval(self,y): # To do some probability integral~
+	def interval_upper(self,y): # probability integral to find lower limit~
         	aa,cc= quad(lambda a:self.l(a), self.min, self.max)
-        	c,d= quad(lambda a:self.l(a), self.ext - y, self.ext + y)
-        	return c/aa -0.95
+        	c,d= quad(lambda a:self.l(a), y, self.max)
+        	return c/aa -0.025
+	def interval_lower(self,y): # probability integral to find upper limit~
+        	aa,cc= quad(lambda a:self.l(a), self.min, self.max)
+        	c,d= quad(lambda a:self.l(a), self.min, y)
+        	return c/aa -0.025
 
 	def confi95(self): #Calculate the confidence 95%
-        	bb= solve_eqn(self.interval,0.0,(self.max-self.min)/2.0)
-        	print  "the 95% interval is ",self.ext-bb,"~",self.ext+bb
-        	print  "the 95% interval is ",self.llr(self.ext-bb),"~",self.llr(self.ext+bb)
-        	return bb
+        	lower= solve_eqn(self.interval_lower,self.min,(self.min+self.max)/2.0)
+		upper= solve_eqn(self.interval_upper,(self.min+self.max)/2.0,self.max)
+        	print  "the 95% interval is ",lower,"~",upper
+        	print  "the 95% interval is ",self.llr(lower),"~",self.llr(upper)
+        	
 
 #********************************
 #********************************
